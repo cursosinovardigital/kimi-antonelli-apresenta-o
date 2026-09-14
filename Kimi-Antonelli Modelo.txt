@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KIMI — GRIDO1 Racing Systems / Kimi Antonelli</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.185.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.0/examples/jsm/",
+      "lenis": "https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.mjs"
+    }
+  }
+  </script>
+
+  <style>
+    :root {
+      --raw-color-ice-50: #f7fafb;
+      --raw-color-ice-100: #ebeef1;
+      --raw-color-ice-200: #dfe5e9;
+      --raw-color-steel-400: #b6c1c8;
+      --raw-color-ink-950: #090a0b;
+      --raw-color-ink-900: #0e0f14;
+      --raw-color-ink-800: #1b1d24;
+      --raw-color-ink-700: #2a2d36;
+      --raw-color-ink-alpha-35: rgb(9 10 11 / 0.35);
+      --raw-color-slate-500: #7a7a7a;
+      --raw-color-slate-600: #4d4d4d;
+      --raw-color-slate-900: #1e1e1e;
+      --raw-color-cyan-400: #02d2e3;
+      --raw-color-cyan-alpha-25: rgb(2 210 227 / 0.25);
+      --raw-color-stone-600: #535450;
+      --raw-color-white-alpha-10: rgb(255 255 255 / 0.1);
+      --raw-color-white-alpha-20: rgb(255 255 255 / 0.2);
+      --raw-color-ink-alpha-08: rgb(9 10 11 / 0.08);
+      --raw-color-white-alpha-40: rgb(255 255 255 / 0.4);
+      --raw-color-white: #ffffff;
+
+      --raw-font-size-96: 6rem;
+      --raw-font-size-70: 4.375rem;
+      --raw-font-size-52: 3.25rem;
+      --raw-font-size-38: 2.375rem;
+      --raw-font-size-20: 1.25rem;
+      --raw-font-size-18: 1.125rem;
+      --raw-font-size-16: 1rem;
+      --raw-font-size-14: 0.875rem;
+      --raw-font-size-12: 0.75rem;
+      --raw-font-size-55: 3.4375rem;
+      --raw-font-size-36: 2.25rem;
+
+      --background: var(--raw-color-ice-50);
+      --foreground: var(--raw-color-ink-950);
+      --foreground-muted: var(--raw-color-ink-alpha-35);
+      --surface-dark: var(--raw-color-ink-900);
+      --surface-dark-raised: var(--raw-color-ink-800);
+      --surface-black: var(--raw-color-ink-950);
+      --surface-muted: var(--raw-color-ice-100);
+      --surface-soft: var(--raw-color-ice-200);
+      --foreground-on-dark: var(--raw-color-white);
+      --foreground-on-dark-muted: var(--raw-color-steel-400);
+      --foreground-on-dark-faint: var(--raw-color-white-alpha-40);
+      --border-muted: var(--raw-color-ice-200);
+      --border-on-dark: var(--raw-color-ink-700);
+      --map-dot: var(--raw-color-slate-500);
+      --map-grid: var(--raw-color-slate-600);
+      --map-grid-ghost: var(--raw-color-slate-900);
+      --map-mark: var(--raw-color-ice-50);
+      --timeline-outline: var(--raw-color-stone-600);
+      --timeline-fill: var(--raw-color-white-alpha-10);
+      --timeline-rail: var(--raw-color-white-alpha-20);
+      --paddock-contour: var(--raw-color-ink-alpha-08);
+      --footer-contour: var(--raw-color-white-alpha-10);
+      --accent: var(--raw-color-cyan-400);
+      --accent-muted: var(--raw-color-cyan-alpha-25);
+
+      --type-impact: var(--raw-font-size-96);
+      --type-display-lg: var(--raw-font-size-70);
+      --type-display: var(--raw-font-size-52);
+      --type-heading: var(--raw-font-size-38);
+      --type-title: var(--raw-font-size-20);
+      --type-lead: var(--raw-font-size-18);
+      --type-label: var(--raw-font-size-16);
+      --type-body: var(--raw-font-size-14);
+      --type-eyebrow: var(--raw-font-size-12);
+      --type-display-sm: var(--raw-font-size-55);
+      --type-year: var(--raw-font-size-36);
+
+      --font-sans: "Space Grotesk", system-ui, sans-serif;
+      --font-display: "Oswald", Impact, sans-serif;
+      --ease-plate: cubic-bezier(0.33, 0, 0, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: auto; }
+    @media (max-width: 1920px) { html { font-size: 0.833333vw; } }
+    @media (max-width: 1440px) { html { font-size: 1.111111vw; } }
+    @media (max-width: 1279px) { html { font-size: 16px; } }
+
+    body {
+      background: var(--background);
+      color: var(--foreground);
+      font-family: var(--font-sans);
+      min-height: 100lvh;
+      overflow-x: hidden;
+      text-transform: uppercase;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Utilitários & Text Engine */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); border: 0; white-space: nowrap;
+    }
+    .text-reveal {
+      display: inline-flex; flex-wrap: wrap; column-gap: 0.3em;
+    }
+    .text-reveal-unit {
+      display: inline-block; will-change: transform, opacity;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+    /* Sticky Stack Layers */
+    .stack-container {
+      position: relative;
+      background: var(--surface-black);
+    }
+    .stack-layer {
+      position: sticky; top: 0; width: 100%; height: 100lvh;
+    }
+    .stack-layer-inner {
+      width: 100%; height: 100%; transform-origin: center;
+    }
+    .stack-shade {
+      position: absolute; inset: 0; background: var(--surface-black);
+      opacity: 0; pointer-events: none; z-index: 40;
+    }
+
+    /* 1. Loading Veil */
+    #loading-veil {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: var(--background);
+      pointer-events: auto;
+    }
+    .veil-helmet-box {
+      width: 7.2rem; height: 8.5rem; position: relative;
+      mask-image: url("https://storage.getlayers.ai/assets/kimi-04a9449ab2/hero/ui/helmet-mask.png");
+      mask-size: contain; mask-repeat: no-repeat; mask-position: center;
+      -webkit-mask-image: url("https://storage.getlayers.ai/assets/kimi-04a9449ab2/hero/ui/helmet-mask.png");
+      -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;
+    }
+    .veil-helmet-shell {
+      position: absolute; inset: 0; background: var(--foreground); opacity: 0.12;
+    }
+    .veil-helmet-fill {
+      position: absolute; inset: 0; background: var(--foreground);
+      transform-origin: top; transform: scaleY(0);
+    }
+    .veil-name {
+      margin-top: 1.75rem; font-size: var(--type-lead); line-height: 0.9;
+      letter-spacing: 0.18em; font-weight: 700;
+    }
+    .veil-meter-track {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+      background: var(--border-muted);
+    }
+    .veil-meter-fill {
+      width: 100%; height: 100%; background: var(--foreground);
+      transform-origin: left; transform: scaleX(0);
+    }
+
+    /* 1. Hero Section */
+    [data-hero] {
+      position: relative; isolation: isolate; min-height: 100lvh;
+      overflow: hidden; background: var(--background);
+    }
+    #hero-canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+    .hero-content {
+      position: relative; z-index: 20; min-height: 100lvh;
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: 1.5rem;
+    }
+    @media (min-width: 640px) { .hero-content { padding: 2rem; } }
+
+    /* Masthead */
+    .hero-masthead {
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; z-index: 30;
+    }
+    .hero-logo { height: 1.5rem; width: auto; }
+    .hero-nav {
+      display: none; list-style: none; gap: 4rem;
+      position: absolute; left: 50%; transform: translateX(-50%);
+    }
+    @media (min-width: 1280px) { .hero-nav { display: flex; } }
+    .hero-nav a {
+      font-size: var(--type-label); line-height: 0.9; color: var(--foreground);
+      transition: color 150ms cubic-bezier(0.2,0,0,1);
+    }
+    .hero-nav a:hover { color: var(--accent); }
+    .garage-link {
+      display: none; font-size: var(--type-label); font-weight: 700;
+      transition: color 150ms ease;
+    }
+    @media (min-width: 1280px) { .garage-link { display: block; } }
+    .garage-link:hover { color: var(--accent); }
+    .burger-btn {
+      display: flex; flex-direction: column; gap: 0.3125rem; padding: 0.5rem;
+      margin-right: -0.5rem; cursor: pointer;
+    }
+    @media (min-width: 1280px) { .burger-btn { display: none; } }
+    .burger-line { width: 1.5rem; height: 1px; background: var(--foreground); }
+
+    /* Hero Center Row */
+    .hero-center-row {
+      flex: 1; display: flex; align-items: center; justify-content: space-between;
+      gap: 2rem;
+    }
+    .hero-identity {
+      max-width: 26.0625rem; display: flex; flex-direction: column; gap: 4rem;
+      position: relative;
+    }
+    .driver-tag {
+      font-size: var(--type-label); color: var(--foreground-muted);
+      margin-bottom: 0.5rem;
+    }
+    @media (min-width: 1280px) {
+      .driver-tag { position: absolute; left: 20.0625rem; top: 0.5625rem; margin-bottom: 0; }
+    }
+    .driver-name {
+      font-family: var(--font-display); font-size: var(--type-impact);
+      line-height: 0.95; font-weight: 700;
+    }
+    .meta-list {
+      display: flex; flex-direction: column; gap: 1rem; list-style: none;
+    }
+    .meta-row {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: var(--type-lead); line-height: 0.9; font-weight: 500;
+    }
+    .meta-icon { object-fit: contain; }
+
+    /* Bracket Panels */
+    .hero-panels {
+      width: 13.625rem; display: flex; flex-direction: column; gap: 2rem;
+    }
+    .bracket-panel {
+      position: relative; padding: 1rem 1.375rem 1.1875rem;
+    }
+    .corner-bracket {
+      position: absolute; width: 0.625rem; height: 0.625rem;
+      stroke: currentColor; fill: none; stroke-width: 1;
+    }
+    .corner-bracket.tr { top: 0; right: 0; }
+    .corner-bracket.tl { top: 0; left: 0; transform: scaleX(-1); }
+    .corner-bracket.bl { bottom: 0; left: 0; transform: scale(-1); }
+    .corner-bracket.br { bottom: 0; right: 0; transform: scaleY(-1); }
+
+    .panel-eyebrow {
+      font-size: var(--type-eyebrow); font-weight: 700; line-height: 0.9;
+      color: var(--accent); margin-bottom: 1rem;
+    }
+    .stats-dl {
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .stat-figure {
+      font-family: var(--font-display); font-size: var(--type-heading);
+      line-height: 0.72; font-weight: 500;
+    }
+    .stat-label {
+      font-size: var(--type-eyebrow); line-height: 0.9;
+    }
+
+    /* Actions Bottom Row */
+    .hero-actions {
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: flex-end;
+      gap: 2rem;
+    }
+    .trailer-cta {
+      display: flex; align-items: center; gap: 0.75rem; font-size: var(--type-body);
+      line-height: 0.9;
+    }
+    .trailer-cta:hover span:first-child { color: var(--accent); }
+    .profile-cta {
+      position: relative; width: 11em; height: 2.5em; font-size: var(--type-title);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--accent); cursor: pointer; text-transform: uppercase;
+    }
+    .profile-cta svg.frame-svg {
+      position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+    }
+    .profile-cta .flood-path {
+      fill: var(--accent); transform-origin: left; transform: scaleX(0);
+      transition: transform 250ms var(--ease-plate);
+    }
+    .profile-cta:hover .flood-path { transform: scaleX(1); }
+    .profile-cta .cta-text {
+      position: relative; z-index: 2; transition: color 250ms ease;
+      display: flex; align-items: center; gap: 1.6em;
+    }
+    .profile-cta:hover .cta-text { color: var(--surface-black); }
+    .profile-cta .cta-arrow {
+      width: 0.65em; height: 0.5em; stroke: currentColor; fill: none;
+      transition: transform 150ms ease;
+    }
+    .profile-cta:hover .cta-arrow { transform: translateX(0.25rem); }
+    .social-links {
+      display: flex; gap: 3.6875rem; justify-content: flex-end;
+      font-size: var(--type-body); line-height: 0.9;
+    }
+    .social-links a:hover { color: var(--accent); }
+
+    /* 2. Season Section */
+    [data-season] {
+      container-type: inline-size; position: relative; isolation: isolate;
+      min-height: 100lvh; overflow: hidden; background: var(--surface-black);
+      color: var(--foreground-on-dark);
+    }
+    .stage-wrapper {
+      position: absolute; inset: 0; overflow: hidden;
+      mask-image: linear-gradient(to bottom, transparent 0, #000 10%, #000 90%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 10%, #000 90%, transparent 100%);
+    }
+    .circuit-stage {
+      position: absolute; left: 0; top: 0; width: 1440px; height: 800px;
+      transform-origin: top left;
+    }
+    #halftone-canvas, #trace-canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    #map-svg {
+      position: absolute; left: 0; pointer-events: none;
+    }
+    .season-content {
+      position: relative; z-index: 20; min-height: 100lvh;
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: 4.8611cqw 2.2222cqw 2rem;
+    }
+    .season-h2 {
+      font-family: var(--font-display); font-size: max(3.8194cqw, 32px);
+      line-height: 0.95; font-weight: 700; color: var(--accent);
+    }
+    .season-rule {
+      width: 1.6667cqw; height: 0.1389cqw; background: var(--accent);
+      margin-top: 1.9444cqw; transform-origin: left;
+    }
+    .season-intro {
+      margin-top: 2.0833cqw; width: max(16.1111cqw, 15rem);
+      font-size: max(1.25cqw, 15px); line-height: 1.1;
+    }
+    .standings-plate {
+      align-self: flex-end; width: 19.2361cqw; height: 5.4167cqw;
+      min-width: 277px; min-height: 78px; position: relative;
+    }
+    .standings-svg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    .standings-inner {
+      position: relative; z-index: 2; height: 100%; display: grid;
+      grid-template-columns: 83px 1fr; align-items: center;
+    }
+    .standings-badge {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .standings-stats {
+      padding-left: 1rem; display: flex; flex-direction: column; gap: 6px;
+      font-size: 0.75rem;
+    }
+
+    /* Chequered Dissolve Seam */
+    .checker-band {
+      position: absolute; inset-x: 0; top: 0; height: 34svh;
+      pointer-events: none; z-index: 30;
+    }
+
+    /* 3. Timeline Section */
+    [data-timeline] {
+      container-type: inline-size; position: relative; isolation: isolate;
+      width: 100%; background: var(--surface-black); color: var(--foreground-on-dark);
+      padding-bottom: 10.4167cqw; overflow-x: clip; z-index: 20;
+    }
+    .timeline-header {
+      position: absolute; top: 2.2222cqw; right: 2.2222cqw; z-index: 20;
+      text-align: right; font-family: var(--font-display);
+      font-size: max(3.8194cqw, 32px); line-height: 0.95; color: var(--accent);
+    }
+    .timeline-rail {
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      z-index: 10; width: 1.1111cqw; min-width: 16px; top: 0;
+    }
+    .timeline-rows {
+      position: relative; width: 100%; padding-top: 11.7361cqw;
+    }
+    .timeline-row {
+      position: relative; width: 100%; height: 32.0833cqw;
+      transition: opacity 700ms var(--ease-plate);
+    }
+    .timeline-row.side { height: 15.0694cqw; }
+    .timeline-plate {
+      position: absolute; inset-block: 0; width: 49.3055cqw;
+      clip-path: url(#plate-clip); -webkit-clip-path: url(#plate-clip);
+      overflow: hidden; background: var(--timeline-fill);
+      transition: inset 700ms var(--ease-plate);
+    }
+    .timeline-row:hover .timeline-plate { inset: 5%; }
+    .timeline-plate.centre { left: 50%; transform: translateX(-50%); }
+    .timeline-plate.side { width: 23.125cqw; }
+    .timeline-plate.side.left { left: 2.2222cqw; }
+    .timeline-plate.side.right { right: 2.2222cqw; }
+    .timeline-img {
+      width: 100%; height: 110%; object-fit: cover; position: absolute; top: 0;
+    }
+    .timeline-year {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      z-index: 20; pointer-events: none; font-family: var(--font-display);
+      font-size: max(2.5cqw, 24px); line-height: 0.95; color: var(--accent);
+    }
+    .timeline-copy {
+      position: absolute; left: 70.8333cqw; top: 50%; transform: translateY(-50%);
+      z-index: 20; pointer-events: none; width: 18.75cqw; font-size: max(1.25cqw, 14px);
+      line-height: 1.1;
+    }
+
+    /* 4. Paddock Section */
+    [data-paddock] {
+      container-type: inline-size; position: relative; isolation: isolate;
+      min-height: 100lvh; width: 100%; overflow: hidden; background: var(--background);
+      color: var(--foreground);
+    }
+    .paddock-dark-band {
+      position: absolute; inset-x: 0; bottom: 0; height: 11.7361cqw;
+      background: var(--surface-black); z-index: 5;
+    }
+    .paddock-fade-grad {
+      position: absolute; inset-x: 0; bottom: 0; height: 11.7361cqw;
+      background: linear-gradient(to bottom, rgb(9 10 11 / 0) 0%, var(--surface-black) 38.685%);
+      z-index: 10;
+    }
+    .paddock-portrait {
+      position: absolute; bottom: 0; left: 65.6917%; transform: translateX(-50%);
+      height: 102.0363%; width: auto; z-index: 10; object-fit: cover;
+      pointer-events: none;
+    }
+    .paddock-head {
+      position: absolute; left: 2.2222cqw; top: 2.2222cqw; z-index: 20;
+      font-family: var(--font-display); font-size: max(6.6667cqw, 40px);
+      line-height: 0.95; color: var(--foreground);
+    }
+    .paddock-intro-box {
+      position: absolute; left: 2.2222cqw; bottom: calc(11.7361cqw + 2.2222cqw);
+      z-index: 20; width: max(23.4722cqw, 320px); display: flex; flex-direction: column;
+      gap: 2.7778cqw;
+    }
+    .paddock-story-btn {
+      position: relative; height: 3.4722cqw; min-height: 48px; width: calc(3.4722cqw * 4.34);
+      min-width: 200px; display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .paddock-story-btn svg.frame {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    .paddock-story-btn .flood {
+      fill: var(--accent); transform-origin: left; transform: scaleX(0);
+      transition: transform 250ms var(--ease-plate);
+    }
+    .paddock-story-btn:hover .flood { transform: scaleX(1); }
+    .paddock-story-btn span {
+      position: relative; z-index: 2; font-size: 1.1rem; color: var(--accent);
+      transition: color 250ms ease; display: flex; align-items: center; gap: 1rem;
+    }
+    .paddock-story-btn:hover span { color: var(--surface-black); }
+
+    /* Calendar Strip */
+    .calendar-strip {
+      position: absolute; inset-x: 0; bottom: 0; height: 11.7361cqw; z-index: 20;
+    }
+    .calendar-card {
+      position: absolute; display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 0.25rem; font-size: 0.8rem;
+    }
+
+    /* 5. Footer Section */
+    [data-footer] {
+      container-type: inline-size; position: relative; isolation: isolate;
+      min-height: 100lvh; width: 100%; overflow: hidden; background: var(--accent);
+    }
+    .footer-inner-panel {
+      position: absolute; inset: 1.1111cqw; overflow: hidden;
+      background: var(--surface-black); color: var(--foreground-on-dark);
+    }
+    .footer-fig-group {
+      position: absolute; inset: 0; z-index: 10; pointer-events: none;
+    }
+    .footer-body {
+      position: absolute; left: 50%; bottom: -1.225%; height: 96.078%;
+      transform: translateX(-50%); object-fit: cover;
+      mask-image: linear-gradient(to bottom, transparent 69%, black 72%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 69%, black 72%);
+    }
+    .footer-helmet {
+      position: absolute; left: 50%; top: 1.25%; height: 83.364%;
+      transform: translateX(-50%); object-fit: cover;
+    }
+    .footer-logo {
+      position: absolute; left: 2.2222cqw; top: 2.2222cqw; z-index: 20;
+      width: 7.3611cqw; height: 1.6667cqw; background: var(--accent);
+      mask-image: url("https://storage.getlayers.ai/assets/kimi-04a9449ab2/footer/logo-mask.png");
+      mask-size: 100% 100%; -webkit-mask-image: url("https://storage.getlayers.ai/assets/kimi-04a9449ab2/footer/logo-mask.png");
+      -webkit-mask-size: 100% 100%;
+    }
+    .footer-h2 {
+      position: absolute; top: 2.2222cqw; right: 2.2222cqw; z-index: 20;
+      font-family: var(--font-display); font-size: max(3.8194cqw, 32px);
+      line-height: 0.95; color: var(--accent); text-align: right;
+    }
+    .footer-nav {
+      position: absolute; left: 2.2222cqw; top: 50%; transform: translateY(-50%);
+      z-index: 20; display: flex; flex-direction: column; gap: 0.75rem;
+    }
+    .footer-nav a {
+      font-family: var(--font-display); font-size: max(2.5cqw, 24px);
+      line-height: 0.95; color: var(--foreground-on-dark);
+      transition: color 150ms ease;
+    }
+    .footer-nav a:hover { color: var(--accent); }
+    .footer-bottom-row {
+      position: absolute; bottom: 2.2222cqw; inset-x: 2.2222cqw; z-index: 20;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      font-size: 0.85rem; color: var(--foreground-on-dark-faint);
+    }
+    .footer-legal-btn {
+      position: relative; height: 3.4722cqw; min-height: 48px; width: 19.0972cqw;
+      min-width: 240px; display: inline-flex; align-items: center; justify-content: center;
+      color: var(--accent); cursor: pointer;
+    }
+    .footer-legal-btn svg.frame {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    .footer-legal-btn .flood {
+      fill: var(--accent); transform-origin: left; transform: scaleX(0);
+      transition: transform 250ms var(--ease-plate);
+    }
+    .footer-legal-btn:hover .flood { transform: scaleX(1); }
+    .footer-legal-btn span {
+      position: relative; z-index: 2; transition: color 250ms ease;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .footer-legal-btn:hover span { color: var(--surface-black); }
+
+    /* Banner de Erro */
+    #error-banner {
+      position: fixed; top: 0; left: 0; right: 0; background: #ff4444; color: #fff;
+      padding: 0.75rem 1rem; z-index: 9999; font-size: 0.85rem; font-weight: 700;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="error-banner" role="alert"></div>
+
+  <!-- SVG ClipPaths Globais -->
+  <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
+    <defs>
+      <clipPath id="plate-clip" clipPathUnits="objectBoundingBox">
+        <path d="M 0.01915,0.00107H 0.98085C 0.98574,0.00107 0.99044,0.00300 0.99390,0.00642C 0.99736,0.00984 0.99930,0.01449 0.99930,0.01933V 0.88815C 0.99930,0.89299 0.99736,0.89763 0.99390,0.90105C 0.99044,0.90448 0.98574,0.90640 0.98085,0.90640H 0.64733C 0.63864,0.90640 0.63007,0.90834 0.62224,0.91206C 0.61442,0.91579 0.60754,0.92122 0.60212,0.92794L 0.56153,0.97830C 0.55635,0.98474 0.54976,0.98993 0.54227,0.99350C 0.53478,0.99707 0.52656,0.99892 0.51825,0.99892H 0.01915C 0.01426,0.99892 0.00956,0.99700 0.00610,0.99358C 0.00264,0.99016 0.00070,0.98551 0.00070,0.98067V 0.01933C 0.00070,0.01449 0.00264,0.00984 0.00610,0.00642C 0.00956,0.00300 0.01426,0.00107 0.01915,0.00107Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <!-- Loading Veil -->
+  <div id="loading-veil" role="status" aria-label="Loading Grido1 Racing Systems">
+    <div class="veil-helmet-box">
+      <div class="veil-helmet-shell"></div>
+      <div class="veil-helmet-fill" id="veil-fill"></div>
+    </div>
+    <div class="veil-name" id="veil-name">KIMI ANTONELLI</div>
+    <div class="veil-meter-track">
+      <div class="veil-meter-fill" id="veil-meter"></div>
+    </div>
+  </div>
+
+  <!-- STICKY STACK (Hero + Season + Timeline) -->
+  <div class="stack-container">
+    
+    <!-- LAYER 1: HERO -->
+    <div class="stack-layer" id="layer-hero">
+      <div class="stack-layer-inner" id="hero-inner">
+        <section data-hero>
+          <canvas id="hero-canvas" aria-hidden="true"></canvas>
+
+          <div class="hero-content">
+            <header class="hero-masthead">
+              <a href="/" aria-label="Grido1 Racing Systems">
+                <img src="https://storage.getlayers.ai/assets/kimi-04a9449ab2/hero/ui/grido1-logo.webp" alt="Grido1 Logo" class="hero-logo" crossorigin="anonymous">
+              </a>
+              <ul class="hero-nav">
+                <li><a href="/driver">Driver</a></li>
+                <li><a href="/season">Season</a></li>
+                <li><a href="/journal">Journal</a></li>
+                <li><a href="/next-race">Next Race</a></li>
+                <li><a href="/store">Store</a></li>
+              </ul>
+              <a href="/garage" class="garage-link"><span aria-hidden="true">[ </span>Garage<span aria-hidden="true"> → ]</span></a>
+              <button class="burger-btn" aria-label="Open menu">
+                <span class="burger-line"></span>
+                <span class="burger-line"></span>
+              </button>
+            </header>
+
+            <div class="hero-center-row">
+              <div class="hero-identity">
+                <div class="driver-tag">DRIVER_012</div>
+                <h1 class="driver-name" id="hero-h1">KIMI ANTONELLI</h1>
+                <ul class="meta-list">
+                  <li class="meta-row">
+                    <img src="https://storage.getlayers.ai/assets/kimi-04a9449ab2/hero/ui/flag-italy.webp" alt="Italy" class="meta-icon" style="width: 1.125rem; height: 0.75rem;" crossorigin="anonymous">
+                    <span>Italy</span>
+                  </li>
+                  <li class="meta-row">
+                    <img src="https://storage.getlayers.ai/assets/kimi-04a9449ab2/hero/ui/icon-rookie.svg" alt="" class="meta-icon" style="width: 1rem; height: 1rem;" crossorigin="anonymous">
+                    <span>Rookie Season_2026</span>
+                  </li>
+                  <li class="meta-row">
+                    <img src="https://storage.getlayers.ai/assets/kimi-04a9449ab2/hero/ui/mercedes-logo.webp" alt="" class="meta-icon" style="width: 0.875rem; height: 0.875rem;" crossorigin="anonymous">
+                    <span>Mercedes-AMG F1 Team</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="hero-panels" data-hero-panels>
+                <!-- Panel 1: Next race -->
+                <div class="bracket-panel">
+                  <svg class="corner-bracket tl" viewBox="0 0 10.5 10.5"><path d="M0 0.5H10V10.5"/></svg>
+                  <svg class="corner-bracket tr" viewBox="0 0 10.5 10.5"><path d="M0 0.5H10V10.5"/></svg>
+                  <svg class="corner-bracket bl" viewBox="0 0 10.5 10.5"><path d="M0 0.5H10V10.5"/></svg>
+                  <svg class="corner-bracket br" viewBox="0 0 10.5 10.5"><path d="M0 0.5H10V10.5"/></svg>
+                  
+                  <div class="panel-eyebrow">NEXT RACE</div>
+                  <dl style="font-size: var(--type-body); line-height: 0.9; margin-bottom: 1rem;">
+                    <dt style="font-weight: 700;">BELGIAN GP</dt>
+                    <dd>SPA-FRANCORCHAMPS</dd>
+                    <dd><time datetime="2026-07-27">27 JUL 2026</time></dd>
+                  </dl>
+                  <img src="https://storage.getlayers.ai/assets/kimi-04a9449ab2/hero/ui/circuit-spa.webp" alt="Spa-Francorchamps" style="width: 4.375rem; height: 6.25rem; object-fit: contain;" crossorigin="anonymous">
+                </div>
+
+                <!-- Panel 2: Season stats -->
+                <div class="bracket-panel" data-hero-stats>
+                  <svg class="corner-bracket tl" viewBox="0 0 10.5 10.5"><path d="M0 0.5H10V10.5"/></svg>
+                  <svg class="corner-bracket tr" viewBox="0 0 10.5 10.5"><path d="M0 0.5H10V10.5"/></svg>
+                  <svg class="corner-bracket bl" viewBox="0 0 10.5 10.5"><path d="M0 0.5H10V10.5"/></svg>
+                  <svg class="corner-bracket br" viewBox="0 0 10.5 10.5"><path d="M0 0.5H10V10.5"/></svg>
+
+                  <div class="panel-eyebrow">SEASON STATS</div>
+                  <div class="stats-dl">
+                    <div>
+                      <div class="stat-figure">12</div>
+                      <div class="stat-label">RACES</div>
+                    </div>
+                    <div>
+                      <div class="stat-figure">3</div>
+                      <div class="stat-label">PODIUMS</div>
+                    </div>
+                    <div>
+                      <div class="stat-figure">118</div>
+                      <div class="stat-label">POINTS</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-actions">
+              <a href="/trailer" class="trailer-cta">
+                <img src="https://storage.getlayers.ai/assets/kimi-04a9449ab2/hero/ui/play-button.svg" alt="" style="width: 2rem; height: 2rem;" crossorigin="anonymous">
+                <div>
+                  <span style="font-weight: 700;">WATCH TRAILER</span><br>
+                  <span style="color: var(--foreground-muted);">01:26</span>
+                </div>
+              </a>
+
+              <a href="/driver/kimi-antonelli" class="profile-cta">
+                <svg class="frame-svg" viewBox="0 0 220 50" preserveAspectRatio="none">
+                  <path d="M220 42L212.932 50H0V0H220V42Z" fill="#0E0F14"/>
+                  <path class="flood-path" d="M220 42L212.932 50H0V0H220V42Z"/>
+                  <path d="M220 42L212.932 50H0V0H220V42Z" fill="none" stroke="var(--accent)" stroke-opacity="0.25"/>
+                  <path d="M205 49.5H213L219.5 42V36 M212 0.5H219.5V7 M8 0.5H0.5V7 M7.5 49.5H0.5V42.5" fill="none" stroke="var(--accent)"/>
+                </svg>
+                <div class="cta-text">
+                  <span>VIEW PROFILE</span>
+                  <svg class="cta-arrow" viewBox="0 0 13.7 10.7"><path d="M0 5.35H13M8 10.35L13 5.35L8 0.35"/></svg>
+                </div>
+              </a>
+
+              <div class="social-links">
+                <a href="https://instagram.com" target="_blank" rel="noopener">INST</a>
+                <a href="https://x.com" target="_blank" rel="noopener">X</a>
+                <a href="https://youtube.com" target="_blank" rel="noopener">YOUTUBE</a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="stack-shade" id="shade-hero"></div>
+    </div>
+
+    <!-- LAYER 2: THE SEASON SO FAR -->
+    <div class="stack-layer" id="layer-season">
+      <div class="stack-layer-inner" id="season-inner">
+        <section data-season>
+          <canvas class="checker-band" id="checker-season"></canvas>
+
+          <div class="stage-wrapper">
+            <div class="circuit-stage" id="circuit-stage">
+              <canvas id="halftone-canvas" width="2560" height="1440"></canvas>
+              <svg id="map-svg" viewBox="0 0 2560 1440" width="1438.43" height="809.11" aria-hidden="true">
+                <defs>
+                  <mask id="track-gap-mask">
+                    <rect width="2560" height="1440" fill="white" />
+                    <rect x="804.96" y="901.57" width="36" height="40" fill="black" transform="rotate(144 822.96 921.57)" />
+                  </mask>
+                  <mask id="lap-reveal-mask">
+                    <path id="mask-centreline" fill="none" stroke="white" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" />
+                  </mask>
+                </defs>
+
+                <g id="map-grid-layer"></g>
+                
+                <!-- Pista Base em Branco com Corte da Bandeira -->
+                <g mask="url(#track-gap-mask)">
+                  <path id="track-ribbon-base" fill="var(--foreground-on-dark)" />
+                  <!-- Pista Preenchida em Ciano com Máscara da Volta -->
+                  <g mask="url(#lap-reveal-mask)">
+                    <path id="track-ribbon-fill" fill="var(--accent)" />
+                  </g>
+                </g>
+
+                <g id="map-markers-layer"></g>
+              </svg>
+              <canvas id="trace-canvas" width="1440" height="800"></canvas>
+            </div>
+          </div>
+
+          <div class="season-content">
+            <div>
+              <h2 class="season-h2">THE SEASON<br>SO FAR<span style="color: var(--foreground-on-dark);">.</span></h2>
+              <div class="season-rule"></div>
+              <p class="season-intro">EVERY RACE IS A STEP FORWARD. HERE'S HOW THE SEASON IS SHAPING UP.</p>
+            </div>
+
+            <div class="standings-plate">
+              <svg class="standings-svg" viewBox="0 0 277 78">
+                <path d="M0.5 0.5H276.5V69L268 77.5H0.5Z" fill="var(--surface-black)" stroke="var(--accent)" stroke-width="1"/>
+                <line x1="83" y1="0" x2="83" y2="78" stroke="var(--accent)" stroke-width="1"/>
+              </svg>
+              <div class="standings-inner">
+                <div class="standings-badge">
+                  <svg id="globe-svg" viewBox="0 0 37 23" style="width: 37px; height: 23px;">
+                    <ellipse cx="18.5" cy="11.5" rx="18" ry="11" fill="none" stroke="var(--accent)" stroke-width="1"/>
+                    <line x1="0.5" y1="11.5" x2="36.5" y2="11.5" stroke="var(--accent)" stroke-width="1"/>
+                    <ellipse id="meridian-ellipse" cx="18.5" cy="11.5" rx="18" ry="11" fill="none" stroke="var(--accent)" stroke-width="1"/>
+                  </svg>
+                  <div style="font-size: 0.75rem; font-weight: 700;">
+                    <span>F1</span> <span style="color: var(--accent);">/ 2026</span>
+                  </div>
+                </div>
+                <dl class="standings-stats">
+                  <div><span style="color: var(--accent); font-weight: 700;">P1</span> IN THE CHAMPIONSHIP</div>
+                  <div><span style="color: var(--accent); font-weight: 700;">6</span> WINS</div>
+                  <div><span style="color: var(--accent); font-weight: 700;">9</span> PODIUMS.</div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="stack-shade" id="shade-season"></div>
+    </div>
+
+    <!-- LAYER 3: TIMELINE (Karts to F1) -->
+    <div style="position: relative; z-index: 20;">
+      <section data-timeline>
+        <canvas class="checker-band" id="checker-timeline"></canvas>
+        
+        <h2 class="timeline-header">FROM KARTS<br>TO F1<span style="color: var(--foreground-on-dark);">.</span></h2>
+
+        <div class="timeline-rail" id="timeline-rail">
+          <svg id="rail-svg" viewBox="0 0 16 2700" style="overflow: visible; width: 100%; height: 100%;">
+            <line x1="8" y1="0" x2="8" y2="98" stroke="var(--timeline-rail)" stroke-width="1"/>
+            <line x1="8" y1="102" x2="8" y2="2387" stroke="var(--timeline-rail)" stroke-width="1" stroke-dasharray="6 6"/>
+            <rect id="rail-progress" x="7.5" y="0" width="1" height="0" fill="var(--foreground-on-dark)"/>
+            <rect id="rail-marker" x="-4.5" y="-4.5" width="9" height="9" fill="var(--foreground-on-dark)"/>
+          </svg>
+        </div>
+
+        <div class="timeline-rows" id="timeline-rows-wrap">
+          <!-- Gerado via JS de acordo com as entradas oficiais -->
+        </div>
+      </section>
+    </div>
+
+  </div> <!-- Fim do Sticky Stack -->
+
+  <!-- 4. FROM THE PADDOCK -->
+  <section data-paddock>
+    <canvas class="checker-band" id="checker-paddock"></canvas>
+    <canvas id="paddock-contour-canvas" style="position: absolute; inset: 0; pointer-events: none;"></canvas>
+    <div class="paddock-dark-band"></div>
+    <div class="paddock-fade-grad"></div>
+    
+    <img src="https://storage.getlayers.ai/assets/kimi-04a9449ab2/paddock/portrait.webp" alt="Kimi Antonelli in the paddock" class="paddock-portrait" id="paddock-figure" crossorigin="anonymous">
+
+    <h2 class="paddock-head">FROM THE<br>PADDOCK<span style="color: var(--accent);">.</span></h2>
+
+    <div class="paddock-intro-box">
+      <p style="font-size: max(1.25cqw, 15px); line-height: 1.1;">A COMPOSED DRIVE THROUGH A DIFFICULT WEEKEND SECURED ANOTHER PODIUM — AND KEPT KIMI AT THE TOP OF THE CHAMPIONSHIP.</p>
+      
+      <a href="/stories/hungarian-gp" class="paddock-story-btn">
+        <svg class="frame" viewBox="0 0 217 50">
+          <path d="M0.5 0.5H216.5V42L209 49.5H0.5Z" fill="var(--surface-black)" stroke="var(--accent)" stroke-width="1"/>
+          <path class="flood" d="M0.5 0.5H216.5V42L209 49.5H0.5Z"/>
+        </svg>
+        <span>
+          READ STORY
+          <svg style="width: 13px; height: 10px; stroke: currentColor; fill: none;" viewBox="0 0 13 10"><path d="M0 5.35H13M8 10.35L13 5.35L8 0.35"/></svg>
+        </span>
+      </a>
+    </div>
+
+    <!-- Calendar Strip -->
+    <div class="calendar-strip" id="calendar-strip">
+      <!-- 5 Cards e conectores animados via JS -->
+    </div>
+  </section>
+
+  <!-- 5. KEEP PUSHING FORWARD (Footer) -->
+  <section data-footer>
+    <div class="footer-inner-panel">
+      <canvas id="footer-contour-canvas" style="position: absolute; inset: 0; pointer-events: none;"></canvas>
+    </div>
+
+    <div class="footer-fig-group" id="footer-figure-group">
+      <img src="https://storage.getlayers.ai/assets/kimi-04a9449ab2/footer/body.webp" alt="" class="footer-body" crossorigin="anonymous">
+      <img src="https://storage.getlayers.ai/assets/kimi-04a9449ab2/footer/helmet.webp" alt="Kimi Antonelli's helmet" class="footer-helmet" crossorigin="anonymous">
+    </div>
+
+    <div class="footer-logo"></div>
+    <h2 class="footer-h2">KEEP PUSHING<br>FORWARD<span style="color: var(--foreground-on-dark);">.</span></h2>
+
+    <nav class="footer-nav">
+      <a href="/driver">DRIVER</a>
+      <a href="/season">SEASON</a>
+      <a href="/journal">JOURNAL</a>
+      <a href="/next-race">NEXT RACE</a>
+      <a href="/store">STORE</a>
+    </nav>
+
+    <div class="footer-bottom-row">
+      <div>© 2026 GRID01 RACING SYSTEMS.<br>ALL RIGHTS RESERVED.</div>
+      
+      <a href="/legal" class="footer-legal-btn">
+        <svg class="frame" viewBox="0 0 275 50" preserveAspectRatio="none">
+          <path d="M0.5 0.5H274.5V41.165L266.165 49.5H0.5Z" fill="none" stroke="var(--accent)" stroke-width="1"/>
+          <path class="flood" d="M0.5 0.5H274.5V41.165L266.165 49.5H0.5Z"/>
+        </svg>
+        <span>
+          LEGAL DOCUMENTS
+          <svg style="width: 13px; height: 10px; stroke: currentColor; fill: none;" viewBox="0 0 13 10"><path d="M0 5.35H13M8 10.35L13 5.35L8 0.35"/></svg>
+        </span>
+      </a>
+
+      <div style="display: flex; gap: 2rem;">
+        <a href="https://instagram.com" target="_blank" rel="noopener">INST</a>
+        <a href="https://x.com" target="_blank" rel="noopener">X</a>
+        <a href="https://youtube.com" target="_blank" rel="noopener">YOUTUBE</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCRIPT CENTRAL E MÓDULOS -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+    import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+    import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+    import Lenis from 'lenis';
+
+    const ASSET_BASE_URL = "https://storage.getlayers.ai/assets/kimi-04a9449ab2";
+
+    function showError(msg) {
+      const el = document.getElementById('error-banner');
+      el.style.display = 'block';
+      el.textContent = `Asset load error: ${msg}`;
+    }
+
+    // Configuração do Scroll inicial
+    history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
+
+    // 1. Ticker desacoplado & Lenis
+    const subscribers = new Set();
+    function subscribe(cb, getInterval = () => 0) {
+      const sub = { cb, getInterval, last: 0 };
+      subscribers.add(sub);
+      return () => subscribers.delete(sub);
+    }
+
+    let rafId = null;
+    function globalTick(now) {
+      for (const sub of [...subscribers]) {
+        const interval = sub.getInterval();
+        if (interval === 0 || now - sub.last >= interval) {
+          sub.cb(now);
+          sub.last = now;
+        }
+      }
+      rafId = requestAnimationFrame(globalTick);
+    }
+    requestAnimationFrame(globalTick);
+
+    const lenis = new Lenis({ smoothWheel: true });
+    subscribe((t) => lenis.raf(t), () => 0);
+
+    // Damped Spring Solver
+    class Spring {
+      constructor({ tension = 170, friction = 26, value = 0 }) {
+        this.tension = tension;
+        this.friction = friction;
+        this.value = value;
+        this.target = value;
+        this.velocity = 0;
+      }
+      step(dt) {
+        const clampedDt = Math.min(dt, 0.064);
+        const subSteps = Math.ceil(clampedDt / 0.001);
+        const h = clampedDt / subSteps;
+        for (let i = 0; i < subSteps; i++) {
+          const fSpring = -this.tension * (this.value - this.target);
+          const fDamp = -this.friction * this.velocity;
+          const a = fSpring + fDamp;
+          this.velocity += a * h;
+          this.value += this.velocity * h;
+        }
+        return this.value;
+      }
+    }
+
+    // 2. Loading Veil Animation
+    const veil = document.getElementById('loading-veil');
+    const veilFill = document.getElementById('veil-fill');
+    const veilMeter = document.getElementById('veil-meter');
+    const loadSpring = new Spring({ tension: 10, friction: 30, value: 0 });
+    loadSpring.target = 0.7;
+
+    let sceneReady = false;
+    let lastTick = performance.now();
+
+    subscribe((now) => {
+      const dt = (now - lastTick) / 1000;
+      lastTick = now;
+      const progress = loadSpring.step(dt);
+      if (veilFill) veilFill.style.transform = `scaleY(${progress})`;
+      if (veilMeter) veilMeter.style.transform = `scaleX(${progress})`;
+    });
+
+    function finishVeil() {
+      loadSpring.tension = 170;
+      loadSpring.friction = 26;
+      loadSpring.target = 1.0;
+      setTimeout(() => {
+        veil.style.transition = "opacity 700ms cubic-bezier(0.2,0,0,1)";
+        veil.style.opacity = "0";
+        setTimeout(() => veil.remove(), 750);
+      }, 500);
+    }
+
+    // 3. WebGL Hero Scene Setup
+    const canvas = document.getElementById('hero-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: false, antialias: window.innerWidth > 1024 });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color("#f7fafb");
+
+    const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 50);
+    camera.position.set(0, 0.1, 6.5);
+
+    const subjectGroup = new THREE.Group();
+    const helmetGroup = new THREE.Group();
+    const helmetPivot = new THREE.Group();
+    helmetGroup.add(helmetPivot);
+    subjectGroup.add(helmetGroup);
+    scene.add(subjectGroup);
+
+    const HELMET_WORN_OFFSET = new THREE.Vector3(0, -0.56, 0.35);
+    helmetPivot.position.copy(HELMET_WORN_OFFSET);
+
+    // Carregamento de Recursos
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath("https://cdn.jsdelivr.net/npm/three@0.185.0/examples/jsm/libs/draco/gltf/");
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.setDRACOLoader(dracoLoader);
+    const textureLoader = new THREE.TextureLoader();
+
+    async function initHeroScene() {
+      try {
+        const [envTex, diffuseMap, depthMap, alphaMap, normalMap, noiseTex, gltf] = await Promise.all([
+          new RGBELoader().loadAsync(`${ASSET_BASE_URL}/hero/scene/studio-light.hdr`),
+          textureLoader.loadAsync(`${ASSET_BASE_URL}/hero/scene/person-diffuse.webp`),
+          textureLoader.loadAsync(`${ASSET_BASE_URL}/hero/scene/person-depth.webp`),
+          textureLoader.loadAsync(`${ASSET_BASE_URL}/hero/scene/person-alpha.webp`),
+          textureLoader.loadAsync(`${ASSET_BASE_URL}/hero/scene/person-normal.webp`),
+          textureLoader.loadAsync(`${ASSET_BASE_URL}/hero/scene/noise.webp`),
+          gltfLoader.loadAsync(`${ASSET_BASE_URL}/hero/scene/helmet3.glb`)
+        ]);
+
+        diffuseMap.colorSpace = THREE.SRGBColorSpace;
+        noiseTex.wrapS = noiseTex.wrapT = THREE.RepeatWrapping;
+
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        scene.environment = pmrem.fromEquirectangular(envTex).texture;
+        envTex.dispose();
+        pmrem.dispose();
+
+        // Plano do Rosto (Head Plane) com Shader
+        const HEAD_HEIGHT = 5.4;
+        const HEAD_EXTEND = 0.14;
+        const headMat = new THREE.ShaderMaterial({
+          transparent: true,
+          uniforms: {
+            uDiffuse: { value: diffuseMap },
+            uDepth: { value: depthMap },
+            uAlpha: { value: alphaMap },
+            uNormal: { value: normalMap },
+            uParallax: { value: new THREE.Vector2() },
+            uDepthScale: { value: 0.005 },
+            uRelight: { value: 0.32 },
+            uExtend: { value: HEAD_EXTEND }
+          },
+          vertexShader: `
+            uniform float uExtend;
+            varying vec2 vUv;
+            void main() {
+              vUv = vec2(uv.x, 1.0 - (1.0 - uv.y) * (1.0 + uExtend));
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `,
+          fragmentShader: `
+            uniform sampler2D uDiffuse, uDepth, uAlpha, uNormal;
+            uniform vec2 uParallax;
+            uniform float uDepthScale, uRelight;
+            varying vec2 vUv;
+            void main() {
+              float d = texture2D(uDepth, vUv).r;
+              vec2 uv = vUv + uParallax * (d - 0.5) * uDepthScale;
+              vec4 col = texture2D(uDiffuse, uv);
+              float a = texture2D(uAlpha, uv).r;
+              vec3 norm = normalize(texture2D(uNormal, uv).rgb * 2.0 - 1.0);
+              vec3 light = normalize(vec3(uParallax * 1.6, 1.0));
+              float lamb = max(dot(norm, light), 0.0) - 0.72;
+              gl_FragColor = vec4(clamp(col.rgb * (1.0 + lamb * uRelight), 0.0, 1.0), a);
+              #include <colorspace_fragment>
+            }
+          `
+        });
+
+        const headMesh = new THREE.Mesh(new THREE.PlaneGeometry(HEAD_HEIGHT, HEAD_HEIGHT * (1 + HEAD_EXTEND)), headMat);
+        headMesh.position.set(0, -0.55 - (HEAD_HEIGHT * HEAD_EXTEND * 0.8) / 2, 0);
+        subjectGroup.add(headMesh);
+
+        // Capacete (GLTF)
+        const helmetModel = gltf.scene;
+        const bbox = new THREE.Box3().setFromObject(helmetModel);
+        const bSize = bbox.getSize(new THREE.Vector3());
+        const scale = (HEAD_HEIGHT * 0.56) / bSize.y;
+        helmetModel.scale.setScalar(scale);
+        bbox.setFromObject(helmetModel);
+        helmetModel.position.sub(bbox.getCenter(new THREE.Vector3()));
+        helmetPivot.add(helmetModel);
+
+        // Ajustes da malha de capacete
+        helmetModel.traverse((child) => {
+          if (child.isMesh) {
+            child.material.transparent = true;
+            child.material.envMapIntensity = 1.3;
+          }
+        });
+
+        subjectGroup.scale.setScalar(1.15);
+        subjectGroup.position.set(0, 0.42, 0);
+
+        sceneReady = true;
+        finishVeil();
+
+      } catch (err) {
+        showError(err.message || err);
+        finishVeil();
+      }
+    }
+    initHeroScene();
+
+    // Loop do Hero WebGL
+    let mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    window.addEventListener('pointermove', (e) => {
+      mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.targetY = (e.clientY / window.innerHeight) * 2 - 1;
+    });
+
+    subscribe(() => {
+      mouse.x += (mouse.targetX - mouse.x) * 0.05;
+      mouse.y += (mouse.targetY - mouse.y) * 0.05;
+
+      helmetPivot.rotation.x = mouse.y * (2.5 * Math.PI / 180);
+      helmetPivot.rotation.y = mouse.x * (2.1 * Math.PI / 180);
+
+      subjectGroup.position.x = mouse.x * 0.02;
+      subjectGroup.position.y = 0.42 - mouse.y * 0.02;
+
+      renderer.render(scene, camera);
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // 4. Sticky Stack Scroll Recede
+    const layerHero = document.getElementById('hero-inner');
+    const shadeHero = document.getElementById('shade-hero');
+    const layerSeason = document.getElementById('layer-season');
+    const layerSeasonInner = document.getElementById('season-inner');
+    const shadeSeason = document.getElementById('shade-season');
+    const layerTimeline = document.querySelector('[data-timeline]');
+
+    window.addEventListener('scroll', () => {
+      const vh = window.innerHeight;
+      
+      // Camada 1 (Hero) encolhe conforme a Camada 2 sobe
+      if (layerSeason) {
+        const topSeason = layerSeason.getBoundingClientRect().top;
+        const p1 = Math.min(1, Math.max(0, 1 - topSeason / vh));
+        if (layerHero && window.innerWidth > 640) {
+          layerHero.style.transform = p1 > 0 ? `scale(${1 - 0.1 * p1})` : "";
+        }
+        if (shadeHero) shadeHero.style.opacity = `${0.55 * p1}`;
+      }
+
+      // Camada 2 (Season) encolhe conforme a Timeline sobe
+      if (layerTimeline) {
+        const topTime = layerTimeline.getBoundingClientRect().top;
+        const p2 = Math.min(1, Math.max(0, 1 - topTime / vh));
+        if (layerSeasonInner && window.innerWidth > 640) {
+          layerSeasonInner.style.transform = p2 > 0 ? `scale(${1 - 0.1 * p2})` : "";
+        }
+        if (shadeSeason) shadeSeason.style.opacity = `${0.55 * p2}`;
+      }
+    });
+
+    // 5. Renderizador do Circuito & Halftone da Seção Season
+    const ribbonBase = document.getElementById('track-ribbon-base');
+    const ribbonFill = document.getElementById('track-ribbon-fill');
+    const maskLine = document.getElementById('mask-centreline');
+    
+    // Importa dados vetorizados do circuito
+    const TRACK_RIBBON_DATA = "M1739.98 200.38C1750.67 207.68 1753.87 215.16 1752.98 229.76C1751.91 245.43 1747.46 251.84 1726.27 267.52C1704.73 283.54 1698.68 289.24 1694.58 297.26C1687.82 310.43 1691.91 329.49 1703.31 337.68C1706.16 339.64 1716.13 344.09 1725.38 347.48C1759.21 359.58 1764.02 364.21 1770.61 389.68C1776.66 412.83 1781.29 418.53 1806.39 434.38C1832.74 450.76 1844.67 462.52 1854.11 481.22C1858.02 489.05 1865.5 503.48 1870.66 513.27C1881.17 533.04 1883.13 541.59 1879.92 552.98C1873.87 576.13 1842.54 589.49 1820.81 578.27C1810.13 572.75 1808.71 571.33 1788.94 546.04C1770.25 521.82 1758.32 510.96 1742.83 503.83C1734.29 499.74 1730.55 499.2 1714.35 499.2C1695.83 499.02 1684.08 501.52 1665.39 509.71C1662.54 510.96 1652.39 514.52 1643.13 517.72C1633.87 520.75 1624.97 523.78 1623.55 524.31C1622.12 524.85 1619.63 525.56 1618.21 525.91C1616.78 526.27 1609.12 528.41 1601.29 530.9C1593.46 533.22 1579.93 537.31 1571.02 539.98C1562.3 542.48 1551.8 545.68 1547.88 547.11C1543.96 548.53 1535.24 550.85 1528.3 552.63C1521.53 554.23 1514.76 556.37 1513.52 557.44C1512.27 558.33 1510.85 558.68 1510.31 558.15C1509.78 557.61 1503.9 558.86 1497.49 560.64C1490.91 562.6 1479.87 565.27 1472.75 566.69C1441.59 572.75 1425.57 589.49 1417.02 624.93C1415.06 633.12 1412.93 647.01 1412.21 655.92C1410.08 689.04 1423.07 710.59 1453.52 724.12C1458.5 726.26 1464.02 728.93 1465.98 730C1467.94 731.07 1482.72 736.59 1498.92 742.11C1515.12 747.81 1529.54 752.79 1530.97 753.5C1532.39 754.04 1538.26 755.64 1543.96 757.07C1549.48 758.49 1554.82 760.09 1555.71 760.63C1556.6 761.16 1561.59 762.76 1566.75 764.19C1576.01 766.68 1616.96 780.93 1635.12 787.88C1652.92 794.64 1673.04 806.22 1682.65 814.94C1702.24 832.75 1705.44 852.16 1695.12 886.18C1687.46 910.93 1687.28 925.18 1694.41 936.4C1701.88 947.97 1710.79 954.92 1730.01 964.36C1807.64 1001.57 1822.24 1011.37 1832.21 1032.2C1839.86 1048.05 1836.66 1059.09 1816.01 1087.59C1811.38 1094 1800.34 1109.49 1791.79 1122.31C1774.17 1147.96 1769.54 1152.77 1756.36 1159.89C1742.65 1167.01 1726.27 1167.55 1699.21 1161.49C1658.62 1152.41 1615 1135.49 1585.62 1117.15C1546.46 1092.75 1517.79 1062.3 1456.72 980.74C1413.82 923.4 1393.16 901.49 1363.08 881.72C1341.53 867.48 1303.97 852.16 1284.74 849.85C1280.64 849.31 1273.34 848.25 1268.36 847.18C1246.1 843.08 1213.34 846.82 1190.55 855.9C1183.43 858.75 1168.83 865.34 1157.97 870.33C1118.09 889.2 1089.43 901.13 1060.94 910.75C1053.64 913.24 1046.88 915.92 1045.99 916.81C1044.92 917.7 1042.78 918.41 1041.18 918.41C1039.4 918.41 1031.74 920.37 1024.09 922.68C997.56 930.87 985.1 934.44 954.65 942.45C917.26 952.25 905.16 952.96 893.94 945.66C885.57 940.14 882.9 934.44 882.9 921.26C882.9 911.11 879.7 904.88 872.75 902.2C867.77 900.42 861.72 902.92 849.25 912.53C843.2 916.98 840.88 917.88 839.1 916.45C837.68 915.38 836.61 915.03 836.61 915.74C836.61 916.45 835.37 916.09 833.94 914.85C830.38 912 830.56 909.68 834.48 908.26C836.08 907.72 842.13 903.99 847.65 900.24C853.17 896.33 860.65 892.41 864.39 891.7C880.23 888.13 893.58 901.31 893.58 920.37C893.58 942.81 904.98 945.12 953.23 931.94C962.13 929.45 979.76 924.64 992.75 921.08C1015.9 914.85 1036.19 908.79 1041.36 906.48C1042.78 905.94 1044.38 905.23 1044.92 905.05C1045.45 904.88 1048.66 903.99 1052.04 902.92C1072.34 896.86 1107.77 882.08 1165.09 855.55C1192.69 842.9 1204.98 839.34 1230.08 836.49C1256.61 833.46 1292.39 838.63 1321.41 849.67C1334.41 854.48 1367.88 871.39 1372.33 875.14C1373.94 876.56 1381.41 882.44 1389.07 888.49C1410.79 905.41 1431.44 929.09 1474.71 986.97C1531.86 1063.19 1567.64 1097.92 1612.69 1120.71C1644.38 1136.56 1705.98 1155.26 1726.99 1155.26C1741.76 1155.26 1754.05 1150.81 1763.48 1141.9C1767.58 1137.99 1777.55 1124.81 1785.74 1112.52C1793.75 1100.23 1804.44 1085.09 1809.24 1078.86C1820.64 1064.08 1827.22 1050.01 1825.62 1043.25C1823.31 1032.2 1814.76 1022.41 1798.38 1011.37C1789.48 1005.49 1776.3 997.83 1769.18 994.45C1709.18 965.78 1704.2 963.11 1695.3 954.74C1679.27 939.78 1674.64 921.62 1680.7 899.35C1682.48 892.59 1685.5 882.08 1687.64 876.03C1692.63 860.36 1692.27 848.07 1686.75 837.2C1674.64 813.87 1648.83 800.87 1555 771.49C1447.64 737.83 1421.29 724.48 1409.19 697.76C1399.22 675.33 1398.86 654.49 1408.12 618.52C1413.1 598.93 1418.62 587.71 1427.88 578.27C1439.63 566.34 1451.56 560.82 1482.54 553.16C1497.85 549.42 1517.79 544.08 1526.51 541.59C1542.72 536.95 1563.73 531.26 1583.49 525.74C1589.36 524.13 1595.42 522.35 1596.84 521.82C1598.26 521.28 1600.4 520.57 1601.65 520.22C1608.77 518.79 1647.4 505.61 1669.12 497.07C1702.42 484.24 1726.63 484.6 1753.69 498.13C1766.87 504.9 1785.21 522.89 1803.72 547.28C1814.4 561.35 1819.21 566.16 1825.62 569.37C1836.12 574.35 1847.52 573.28 1857.49 566.16C1870.84 556.72 1874.4 542.65 1866.93 528.23C1864.61 523.96 1856.6 508.82 1849.12 494.57C1833.45 465.19 1829.72 460.91 1803.72 445.06C1786.1 434.02 1771.32 421.2 1766.87 412.65C1765.44 409.98 1763.13 402.5 1761.7 395.91C1756.01 371.87 1751.02 366.89 1723.25 357.63C1696.54 348.72 1683.9 336.97 1681.41 318.27C1678.56 297.08 1687.28 283.19 1718.8 260.39C1733.4 249.71 1737.85 245.43 1740.87 239.02C1745.33 229.58 1745.5 225.84 1742.12 217.83C1738.92 210.35 1733.04 206.08 1725.38 206.08C1719.15 206.08 1694.76 216.23 1694.76 218.9C1694.76 219.61 1693.34 220.32 1691.56 220.32C1689.78 220.32 1687.64 221.04 1686.75 221.93C1685.68 222.82 1630.49 250.95 1563.9 284.43C1497.32 318.09 1442.12 346.05 1441.06 346.76C1440.17 347.48 1407.58 364.04 1368.95 383.27C1330.32 402.5 1296.13 420.31 1292.93 422.63C1289.9 424.94 1286.52 426.9 1285.63 426.9C1284.74 426.9 1276.37 432.24 1267.29 438.83C1223.14 470 1204.98 479.97 1157.97 498.13C1112.4 515.76 1070.73 536.78 1046.34 554.59C1036.02 562.24 1015.9 578.63 1001.83 591.09C966.94 621.9 948.42 637.22 933.64 647.55C917.26 658.94 891.98 671.94 882.55 673.72C870.8 676.04 843.02 686.55 835.72 691.53C820.41 701.68 807.41 717.53 771.63 770.07C764.33 780.93 749.19 797.49 722.67 824.03C653.05 893.66 647 902.56 601.6 999.44C596.08 1011.01 578.63 1047.7 567.59 1070.85C558.34 1090.08 557.62 1094.36 562.43 1100.59C564.57 1103.26 567.59 1105.4 569.2 1105.4C572.4 1105.4 579.17 1101.3 587.18 1094.71C589.67 1092.57 631.51 1061.23 679.94 1024.9C728.36 988.57 776.26 952.6 786.05 945.12C801.72 933.19 804.56 931.59 806.7 933.73C808.84 936.04 809.73 935.86 812.58 932.66C815.25 929.81 815.43 928.74 813.47 926.42C811.33 923.93 810.8 923.93 808.13 926.42C805.45 928.92 804.92 928.92 802.78 926.42C800.65 923.75 801 921.79 804.92 916.27C806.7 913.6 806.7 912.53 804.03 910.04C801.18 907.19 801.18 906.83 804.92 902.92L808.84 898.82L812.76 903.63C816.49 908.44 816.85 908.44 820.05 905.41C823.44 902.56 823.79 902.56 826.82 905.94C830.2 909.68 830.2 909.68 825.22 913.6C820.77 917.16 820.59 917.88 823.08 920.01C824.51 921.26 826.46 921.79 827.35 921.26C828.42 920.72 830.02 921.44 831.27 922.86C833.23 925.35 833.94 925.35 836.97 922.68C839.99 919.83 840.35 919.83 842.66 923.04C844.8 925.89 844.8 926.78 842.66 929.27C840.53 931.59 840.71 932.48 843.02 936.04C845.69 939.78 845.69 940.31 843.2 942.98C840.53 945.48 839.99 945.48 836.61 942.45C833.23 939.42 833.23 939.07 836.08 935.86C838.75 932.83 838.75 932.3 836.08 929.63C833.58 927.14 832.87 927.14 830.2 929.27C827.89 931.23 827 931.23 826.46 929.45C825.4 926.42 821.48 926.78 818.81 929.98C815.78 933.73 819.88 939.07 823.44 936.04C826.46 933.55 831.27 935.15 831.27 938.53C831.27 939.96 830.02 942.09 828.6 943.34C826.29 945.3 825.4 945.12 823.44 942.27C821.3 939.6 820.59 939.42 818.1 941.38C815.96 943.16 814.71 943.34 812.76 941.74C810.08 939.42 810.08 939.6 760.05 978.07C751.69 984.48 724.8 1004.78 700.23 1023.3C675.66 1041.64 654.3 1057.67 653.05 1058.74C642.37 1067.82 580.06 1112.34 576.67 1113.59C574.18 1114.3 570.44 1115.19 568.13 1115.19C562.08 1115.37 551.75 1105.75 550.15 1098.27C548.19 1089.01 551.04 1081.53 578.45 1024.37C585.22 1009.94 590.92 998.01 590.92 997.66C590.92 995.34 619.05 937.64 629.2 919.3C645.22 889.92 664.63 866.23 703.62 828.3C729.79 802.83 747.59 784.13 755.6 773.81C761.83 765.97 786.76 729.29 786.76 727.86C786.76 727.15 787.47 726.08 788.19 725.72C788.9 725.37 793.17 720.38 797.8 714.51C818.81 687.08 831.98 677.82 861.54 669.09C907.12 655.74 928.84 642.2 987.77 590.02C998.81 580.05 1010.38 569.72 1013.58 567.05C1022.84 558.86 1045.27 541.94 1056.49 534.64C1066.46 528.23 1111.33 505.08 1115.24 504.19C1116.31 504.01 1126.99 499.74 1139.28 494.75C1151.56 489.59 1169.55 482.11 1179.34 478.19C1189.13 474.09 1203.91 466.97 1212.28 462.16C1231.5 451.12 1230.97 451.48 1252.87 436.16C1278.86 418 1282.07 416.04 1312.51 400.37C1355.06 378.46 1632.63 237.95 1698.32 205.01C1720.93 193.61 1729.12 192.72 1739.98 200.38Z";
+    const LAP_CENTRELINE_DATA = "M813.87 936.41L803.19 936.95L794.47 942.82L576.98 1105.84L561.86 1106.02L553.67 1093.21L563.46 1063.13L641.23 905.8L680.74 855.61L755.85 779.8L801.76 714.66L827.57 687.79L841.09 679.42L896.62 660.91L919.94 648.1L958.56 619.62L1031.17 556.8L1075.48 527.26L1197.39 474.22L1296.52 411.93L1710.49 202.81L1720.63 199.97L1736.12 202.64L1745.73 215.27L1747.51 230.93L1738.07 249.8L1703.9 275.25L1689.66 291.09L1683.97 311.38L1687.71 326.86L1702.12 342.34L1741.63 358.18L1754.62 367.08L1774.73 415.67L1837.38 464.43L1874.58 535.09L1875.29 545.59L1868.53 560L1856.96 570.86L1847.17 574.95L1825.99 574.24L1812.29 566.05L1801.61 554.31L1775.45 520.85L1754.98 503.59L1730.6 493.44L1699.27 491.66L1613.85 520.32L1445.49 568.55L1428.94 581.89L1417.55 599.87L1404.73 656.46L1406.51 677.64L1413.81 697.58L1423.6 710.03L1440.86 722.67L1484.64 741.89L1621.32 786.38L1664.75 806.67L1684.86 823.94L1694.47 848.32L1694.11 864.34L1682.37 910.43L1683.08 926.27L1690.02 940.68L1709.42 958.48L1776.87 990.87L1804.1 1007.6L1819.94 1021.66L1829.02 1040.88L1829.19 1051.38L1822.25 1065.62L1782.92 1122.75L1762.81 1147.49L1748.75 1155.14L1711.91 1157.63L1680.94 1150.51L1620.97 1129.33L1579.14 1106.02L1549.78 1082.88L1523.44 1056.54L1403.66 906.69L1375.19 882.49L1343.51 862.91L1288.34 843.69L1246.51 837.82L1194.37 846.36L1067.47 901.53L991.48 925.38L914.24 943.89L903.74 943.53L890.39 934.99L883.81 904.2L876.69 896.37L866.37 894.59L838.07 910.61L813.87 936.41";
+    
+    if (ribbonBase) ribbonBase.setAttribute('d', TRACK_RIBBON_DATA);
+    if (ribbonFill) ribbonFill.setAttribute('d', TRACK_RIBBON_DATA);
+    if (maskLine) {
+      maskLine.setAttribute('d', LAP_CENTRELINE_DATA);
+      maskLine.style.strokeDasharray = "4865.57";
+      maskLine.style.strokeDashoffset = "4865.57";
+    }
+
+    // Grid e Elementos de Mapa
+    const gridLayer = document.getElementById('map-grid-layer');
+    if (gridLayer) {
+      gridLayer.innerHTML = `
+        <line x1="645.31" y1="-4000" x2="645.31" y2="5440" stroke="var(--map-grid)" stroke-width="2.13" stroke-dasharray="12.15 8.35"/>
+        <line x1="1276.96" y1="-4000" x2="1276.96" y2="5440" stroke="var(--map-grid)" stroke-width="2.13" stroke-dasharray="12.15 8.35"/>
+        <line x1="1908.61" y1="-4000" x2="1908.61" y2="5440" stroke="var(--map-grid)" stroke-width="2.13" stroke-dasharray="12.15 8.35"/>
+        <line x1="-4000" y1="697.98" x2="6560" y2="697.98" stroke="var(--map-grid)" stroke-width="2.13" stroke-dasharray="12.15 8.35"/>
+        <circle cx="1278.48" cy="699.5" r="69.85" stroke="var(--map-grid)" stroke-width="3.04" fill="none"/>
+        <circle cx="1278.48" cy="699.5" r="356.06" stroke="var(--map-grid-ghost)" stroke-width="2.13" fill="none"/>
+        <circle cx="1278.48" cy="699.5" r="442.61" stroke="var(--map-grid-ghost)" stroke-width="2.13" fill="none"/>
+      `;
+    }
+
+    // Rotação do meridiano
+    const meridian = document.getElementById('meridian-ellipse');
+    subscribe((now) => {
+      if (meridian) {
+        const turn = (now / 10000) * 2 * Math.PI;
+        meridian.setAttribute('rx', Math.max(0.5, Math.abs(Math.cos(turn)) * 18));
+      }
+    });
+
+    // 6. Linhas de Contorno Procedurais (Paddock e Footer)
+    function createContourCanvas(canvasId, strokeColor) {
+      const cvs = document.getElementById(canvasId);
+      if (!cvs) return;
+      const ctx = cvs.getContext('2d');
+      const LINE_SCALE = 3.8, LINE_COUNT = 2.5, WAVE_AMOUNT = 0.37, WAVE_SPEED = 1.66;
+      const CELLS = 96;
+
+      function resize() {
+        cvs.width = cvs.clientWidth * Math.min(window.devicePixelRatio, 2);
+        cvs.height = cvs.clientHeight * Math.min(window.devicePixelRatio, 2);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function field(x, y, t) {
+        let f = Math.sin(x * 1.0 + t * 0.6) * 0.5;
+        f += Math.sin(y * 0.85 - t * 0.45) * 0.45;
+        f += Math.sin((x + y) * 0.65 + t * 0.35) * 0.35;
+        f += Math.sin((x - y) * 0.95 - t * 0.55) * 0.25;
+        return f * 0.5 + 0.5;
+      }
+
+      subscribe((now) => {
+        const width = cvs.width;
+        const height = cvs.height;
+        if (!width || !height) return;
+
+        ctx.clearRect(0, 0, width, height);
+        const t = (now / 1000) * WAVE_SPEED;
+        const cols = width >= height ? CELLS : Math.max(8, Math.round((CELLS * width) / height));
+        const rows = Math.max(8, Math.round((cols * height) / width));
+        const stepX = width / cols;
+        const stepY = height / rows;
+        const aspect = width / height;
+
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 0.85;
+        ctx.beginPath();
+
+        for (let j = 0; j < rows; j++) {
+          for (let i = 0; i < cols; i++) {
+            const nx = ((i / cols) * 2 - 1) * aspect * LINE_SCALE;
+            const ny = ((j / rows) * 2 - 1) * LINE_SCALE;
+            const qx = nx + Math.sin(ny * 0.8 + t * 0.7) * WAVE_AMOUNT;
+            const qy = ny + Math.cos(nx * 0.7 - t * 0.6) * WAVE_AMOUNT;
+            const val = field(qx, qy, t) * LINE_COUNT;
+            
+            if (Math.abs(val - Math.round(val)) < 0.05) {
+              ctx.rect(i * stepX, j * stepY, 1.5, 1.5);
+            }
+          }
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }, () => 24);
+    }
+    createContourCanvas('paddock-contour-canvas', '#090a0b');
+    createContourCanvas('footer-contour-canvas', '#ffffff');
+
+    // 7. População da Linha do Tempo (Timeline)
+    const timelineData = [
+      { year: "2012", frame: "centre", copy: "The first kart. At six, Kimi discovered karting — turning a childhood curiosity into something of his own." },
+      { year: "2015", frame: "side", align: "right" },
+      { year: "2019", frame: "centre", copy: "Finding his people. Kimi joined the Mercedes Junior Programme, marking his first major step into professional motorsport." },
+      { year: "2021", frame: "side", align: "left" },
+      { year: "2024", frame: "centre", copy: "The year everything changed. Formula 2 brought Kimi closer to F1, while Mercedes confirmed him as their future race driver." },
+      { year: "2025", frame: "side", align: "right" },
+      { year: "2026", frame: "centre", copy: "From karts to f1. Kimi is now racing at the highest level, with Bologna still his anchor — family, home and life beyond racing." }
+    ];
+
+    const timelineWrap = document.getElementById('timeline-rows-wrap');
+    if (timelineWrap) {
+      timelineData.forEach((item) => {
+        const row = document.createElement('div');
+        row.className = `timeline-row ${item.frame}`;
+        
+        let plateHtml = '';
+        if (item.frame === 'centre') {
+          plateHtml = `
+            <div class="timeline-plate centre">
+              <img src="${ASSET_BASE_URL}/timeline/${item.year}.webp" class="timeline-img" alt="" crossorigin="anonymous">
+            </div>
+            <div class="timeline-year">${item.year}</div>
+            <p class="timeline-copy">${item.copy}</p>
+          `;
+        } else {
+          plateHtml = `
+            <div class="timeline-plate side ${item.align}">
+              <img src="${ASSET_BASE_URL}/timeline/${item.year}.webp" class="timeline-img" alt="" crossorigin="anonymous">
+            </div>
+            <div class="timeline-year">${item.year}</div>
+          `;
+        }
+        row.innerHTML = plateHtml;
+        timelineWrap.appendChild(row);
+      });
+
+      // Efeito de escurecimento dos outros cards ao passar o mouse
+      const rows = timelineWrap.querySelectorAll('.timeline-row');
+      rows.forEach((r) => {
+        r.addEventListener('mouseenter', () => {
+          rows.forEach((other) => { if (other !== r) other.style.opacity = '0.3'; });
+        });
+        r.addEventListener('mouseleave', () => {
+          rows.forEach((other) => { other.style.opacity = '1'; });
+        });
+      });
+    }
+
+    // 8. Faixa de Calendário da Seção Paddock
+    const calendarData = [
+      { r: "ROUND 11", name: "AUSTRIAN GP", date: "29 JUN", p: "24%" },
+      { r: "ROUND 12", name: "BRITISH GP", date: "12 JUL", p: "38%" },
+      { r: "ROUND 13", name: "BELGIAN GP", date: "27 JUL", p: "50%", live: true },
+      { r: "ROUND 14", name: "HUNGARIAN GP", date: "03 AUG", p: "62%" },
+      { r: "ROUND 15", name: "DUTCH GP", date: "31 AUG", p: "76%" }
+    ];
+
+    const calStrip = document.getElementById('calendar-strip');
+    if (calStrip) {
+      calendarData.forEach((c) => {
+        const card = document.createElement('div');
+        card.className = "calendar-card";
+        card.style.left = c.p;
+        card.style.transform = "translateX(-50%)";
+        card.style.bottom = "2.5cqw";
+        card.innerHTML = `
+          <span style="color: ${c.live ? 'var(--accent)' : 'var(--foreground-on-dark-muted)'}; font-size: 0.75rem; font-weight: 700;">${c.r}</span>
+          <span style="color: var(--foreground-on-dark); font-family: var(--font-display); font-size: 1.1rem; font-weight: 700;">${c.name}</span>
+          <span style="color: ${c.live ? 'var(--accent)' : 'var(--foreground-on-dark-muted)'}; font-size: 0.8rem;">${c.date}</span>
+        `;
+        calStrip.appendChild(card);
+      });
+    }
+
+    // 9. Dissolve com Bandeira Quadriculada (Chequered Dissolve)
+    function setupCheckerBand(canvasId, carry = "light") {
+      const cvs = document.getElementById(canvasId);
+      if (!cvs) return;
+      const ctx = cvs.getContext('2d');
+      const CELL = 24;
+      const SOLID_UNTIL = 0.16;
+
+      function render(p) {
+        cvs.width = cvs.clientWidth * Math.min(window.devicePixelRatio, 2);
+        cvs.height = cvs.clientHeight * Math.min(window.devicePixelRatio, 2);
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+        const surface = carry === "light" ? "#f7fafb" : "#090a0b";
+        const accent = "#02d2e3";
+        const cols = Math.ceil(cvs.width / CELL);
+        const rows = Math.ceil(cvs.height / CELL);
+        const lift = p * 2;
+
+        for (let y = 0; y < rows; y++) {
+          const depth = y / Math.max(1, rows - 1) + lift;
+          if (depth > 1) break;
+          const solid = depth <= SOLID_UNTIL;
+          const fade = Math.min(1, Math.max(0, 1 - (depth - SOLID_UNTIL) / (1 - SOLID_UNTIL)));
+          if (!solid && fade <= 0) break;
+
+          for (let x = 0; x < cols; x++) {
+            if (!solid) {
+              if ((x + y) % 2 !== 0) continue;
+              if (Math.random() > fade) continue;
+            }
+            ctx.fillStyle = (!solid && Math.random() < 0.06) ? accent : surface;
+            ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+          }
+        }
+      }
+
+      window.addEventListener('scroll', () => {
+        const rect = cvs.getBoundingClientRect();
+        const p = Math.min(1, Math.max(0, 1 - rect.top / window.innerHeight));
+        render(p);
+      });
+    }
+
+    setupCheckerBand('checker-season', 'light');
+    setupCheckerBand('checker-timeline', 'light');
+    setupCheckerBand('checker-paddock', 'dark');
+  </script>
+</body>
+</html>
